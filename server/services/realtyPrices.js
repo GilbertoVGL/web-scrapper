@@ -21,8 +21,50 @@ async function searchRealtyPrices(params) {
   const uniqueUrls = [...new Set(realtysUrls)]
   console.log('uniqueUrls.length =>> ', uniqueUrls.length);
 
-  const data = get
+  const data = await getContent(uniqueUrls);
+  console.log('data =>> ', data);
   return uniqueUrls;
+}
+
+const getContent = async (uniqueUrls) => {
+  const realtysDetails = []
+  for (let i = 0; i < uniqueUrls.length ; i++) {
+    const details = await getRealtyDetails(uniqueUrls[i]);
+    if (details) realtysDetails.push(details);
+  }
+  return realtysDetails;
+}
+
+const getRealtyDetails = async (url) => {
+  return new Promise ((resolve, reject) => {
+    const realtyDetails = {}
+    request({
+      url: url,
+      encoding: null
+    }, (err, res, body) => {
+      if (!err) {
+        const $ = cheerio.load(body);
+        $('div[data-testid="ad-properties"] div div').each(function (i, elem) {
+          let key = $('dt', elem).text();
+          let value = $('a', elem).text();
+          // regex to remove accented characters and replace it by unaccented
+          key = key.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+          // regex to convert the key string to camelCase
+          if (key.match(/\s+/g)) {
+            key = key.replace(/(?:[A-Z]|\b\w)/g, (word, index) => {
+              return index === 0 ? word.toLowerCase() : word.toUpperCase();
+            }).replace(/\s+/g, '');
+          } else {
+            key = key.toLowerCase();
+          }
+
+          realtyDetails[key] = value ? value : null;
+        });
+      }
+      // console.log('realtyDetails => ', realtyDetails);
+      resolve(realtyDetails)
+    })
+  })
 }
 
 const traversePages = async (numOfPages) => {
@@ -36,7 +78,6 @@ const traversePages = async (numOfPages) => {
     if (pageContents) realtys.push(pageContents)
   }
   const allRealtys = realtys.flat();
-  console.log('traversePages allRealtys =>> ', allRealtys);
   return allRealtys
 }
 
