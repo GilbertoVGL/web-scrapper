@@ -1,11 +1,12 @@
 const express = require('express')
 const router = express.Router()
 
-const sweeper = require('../controllers/scrapper')
+const scrapper = require('../controllers/scrapper');
+const realtyPrices = require('../controllers/realtyScrapper');
 
 router
-  .post('/images', sweeper.searchImages)
-  .post('/car-prices', sweeper.searchCarPrices)
-  .post('/realty-prices', sweeper.searchRealtyPrices)
+  .post('/images', scrapper.searchImages)
+  .post('/car-prices', scrapper.searchCarPrices)
+  .post('/realty-prices', realtyPrices.searchRealtyPrices)
 
 module.exports = router
