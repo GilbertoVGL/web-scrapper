@@ -1,9 +1,9 @@
 const request = require('request');
 const cheerio = require('cheerio');
-const mimelib = require("mimelib");
-const iconv = require('iconv-lite');
-const puppeteer = require('puppeteer');
-const util = require('util');
+// const mimelib = require("mimelib");
+// const iconv = require('iconv-lite');
+// const puppeteer = require('puppeteer');
+// const util = require('util');
 
 
 async function searchImages(params) {
@@ -45,20 +45,15 @@ async function searchImages(params) {
     })
   })();
   const uniqueUrls = [...new Set(imagens)]
-  // console.log('uniqueUrls =>> ', util.inspect(uniqueUrls, {'maxArrayLength': null}))
-  // console.log('uniqueUrls.length =>> ', uniqueUrls.length);
   return uniqueUrls;
 }
 
 async function searchCarPrices(params) {
   const filtro = params.query.trim();
-  console.log('teste ', filtro)
-  console.log('teste encodeURIComponent ', encodeURIComponent(filtro))
   const query = encodeURIComponent(filtro)
   const url = "https://www.olx.com.br/autos-e-pecas?q=" + query;
   const prices = [];
 
-  console.log('about to look for =>> ', url);
   await (() => {
     return new Promise ((resolve, reject) => {
       request(url, (err, res, body) => {
@@ -76,7 +71,6 @@ async function searchCarPrices(params) {
     })
   })();
   const uniqueUrls = [...new Set(prices)]
-  console.log('uniqueUrls =>> ', uniqueUrls);
   return uniqueUrls;
 }
 

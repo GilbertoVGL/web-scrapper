@@ -1,15 +1,15 @@
 <template>
   <div class="boards">
     <div>
-      <h1>Insert your query bitch:</h1>
-      <input v-model="userQuery" placeholder="Enter your search here!">
+      <!-- <h1>Insert your query:</h1>
+      <input v-model="userQuery" placeholder="Enter your search here!"> -->
       <h3>Type of search</h3>
-      <input type="radio" id="image" value="image" v-model="typeOfSearch">
+      <!-- <input type="radio" id="image" value="image" v-model="typeOfSearch">
       <label for="image">Image</label>
       <input type="radio" id="site" value="site" v-model="typeOfSearch">
       <label for="site">Site</label>
       <input type="radio" id="carPrice" value="carPrice" v-model="typeOfSearch">
-      <label for="carPrice">Car Price</label>
+      <label for="carPrice">Car Price</label> -->
       <input type="radio" id="realtyPrice" value="realtyPrice" v-model="typeOfSearch">
       <label for="realtyPrice">Realty Price</label>
       <br>
@@ -51,7 +51,7 @@
   min-width: 150px;
   min-height: 80px;
   padding: 10px;
-  background-color: rgb(0, 121, 191);
+  background-color: rgb(198, 205, 250);
   margin: 0 15px 15px 0;
 }
 </style>

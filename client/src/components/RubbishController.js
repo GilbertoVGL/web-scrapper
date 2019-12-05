@@ -30,7 +30,7 @@ export default {
   },
   methods: {
     async getRubbish(){
-      if(vm.userQuery) {
+      // if(vm.userQuery) {
         let rubbish;
         const filtros = {
           query: vm.userQuery,
@@ -53,7 +53,7 @@ export default {
             vm.gotPriceRubbish = true;
           }
         }
-      }
+      // }
     }
   }
 }

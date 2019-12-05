@@ -22,7 +22,7 @@ html, body, #app {
   height: 100%;
 }
 body {
-  background-color: #4fc08d;
+  background-color: #ffffff;
   font-size: 1.6rem;
   font-family: Helvetica Neue,Arial,Helvetica,sans-serif;
   line-height: 20px;
