@@ -15,7 +15,7 @@ Steps:
     
     1.4 - Realtys prices from OLX (at this given moment it's only looking for realtys in Goiânia, for a specific purpose)
     
-    
+obs.: For purposes of development of the tools, only option 1.4 is currently working.
 To Run:
 
   Clone the repository;
