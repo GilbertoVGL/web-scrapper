@@ -8,7 +8,7 @@ const iconv = require('iconv-lite');
 
 async function searchRealtyPrices(params) {
   const filtro = params.query ? params.query.trim() : null;
-  const query = encodeURIComponent(filtro);
+  // const query = encodeURIComponent(filtro);
   const homeUrl = 'https://go.olx.com.br/grande-goiania-e-anapolis/imoveis/aluguel/apartamentos?pe=1300&sf=1';
   console.log('searchRealtyPrices about to look for =>> ', homeUrl);
 
@@ -22,7 +22,7 @@ async function searchRealtyPrices(params) {
   console.log('uniqueUrls.length =>> ', uniqueUrls.length);
 
   const data = await getContent(uniqueUrls);
-  saveRealtys(data);
+  // saveRealtys(data);
   console.log('data.length =>> ', data.length);
   return data;
 }
@@ -31,10 +31,10 @@ const getContent = async (uniqueUrls) => {
     const realtysDetails = []
     for (let i = 0; i < uniqueUrls.length ; i++) {
       const details = await getRealtyDetails(uniqueUrls[i]);
+      details.advertiser = await getAdvertiserDetails(details);
       if (details) realtysDetails.push(details);
     }
     return realtysDetails;
-
 }
 
 const getRealtyDetails = async (url) => {
@@ -46,38 +46,27 @@ const getRealtyDetails = async (url) => {
     }, (err, res, body) => {
       if (!err) {
         const $ = cheerio.load(body);
-        let codPubli = $('#content > ' +
-                        'div.sc-bwzfXH.h3us20-0.cBfPri > ' +
-                        'div.sc-1ys3xot-0.h3us20-0.lnOyyM > ' +
-                        'div.h3us20-5.eeNNeS > ' +
-                        'div.h3us20-2.bdQAUC > ' +
-                        'div > ' +
+        realtyDetails['url'] = url;
+        let codPubli = $('div > ' +
                         'span.sc-bZQynM.sc-16iz3i7-0.cPAPOU')
                         .text()
         realtyDetails['codPublicacao'] = Number(codPubli.substr(codPubli.indexOf(' ')));
-        realtyDetails['dtPublicacao'] = $('#content > ' +
-                                          'div.sc-bwzfXH.h3us20-0.cBfPri > ' +
-                                          'div.sc-1ys3xot-0.h3us20-0.lnOyyM > ' +
-                                          'div.h3us20-5.eeNNeS > ' +
-                                          'div.h3us20-2.bdQAUC > ' +
+        realtyDetails['dtPublicacao'] = $('div.h3us20-2.bdQAUC > ' +
                                           'div > ' +
                                           'span.sc-bZQynM.sc-1oq8jzc-0.dxMPwC').text();
         realtyDetails['tituloAnuncio'] = $('h1[tag="h1"]').text();
-        let valorAluguel = $('#content > ' +
-                            'div.sc-bwzfXH.h3us20-0.cBfPri > ' +
-                            'div.sc-1ys3xot-0.h3us20-0.dKZlmj > ' +
-                            'div.h3us20-5.kXGTwk > ' +
-                            'div > ' +
+        let valorAluguel = $('div > ' +
                             'div.sc-EHOje.sc-dVhcbM.iOixbk > ' +
                             'div.sc-EHOje.sc-dVhcbM.sc-12l420o-0.hHjKok > h2').text();
-        realtyDetails['valorAluguel'] = Number(valorAluguel.slice(valorAluguel.indexOf(' ')).replace('.', ''))
-        $('div[data-testid="ad-properties"] div div').each(function (i, elem) {
-          let key = $('dt', elem).text();
-          let value = $('a', elem).text();
 
-          // regex to remove accented characters and replace it by unaccented
+        realtyDetails['valorAluguel'] = Number(valorAluguel.replace(/\D|\s|\./g, ''))
+
+        $('div[data-testid="ad-properties"] div div').each(function (i, elem) {
+          let value
+          let key = $('dt', elem).text();
+          // regex to remove accented characters and replace it by unaccented.
           key = key.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-          // regex to convert the key string to camelCase
+          // regex to convert the key string to camelCase.
           if (key.match(/\s+/g)) {
             key = key.replace(/(?:[A-Z]|\b\w)/g, (word, index) => {
               return index === 0 ? word.toLowerCase() : word.toUpperCase();
@@ -85,19 +74,38 @@ const getRealtyDetails = async (url) => {
           } else {
             key = key.toLowerCase();
           }
+          // the value can be contained on a 'a' or 'dd' element, don't know which one.
+          if ($('a', elem).text()) value = $('a', elem).text();
+          if ($('dd', elem).text()) value = $('dd', elem).text()
+          // the value can be a numbered value, if so, I extract only the numbers to store,
+          // like number of bedrooms, rent value, area of the realty and so on.
+          if (value && value.match(/\d/)) {
+            value = Number(value.replace(/\D|\s/g, ''));
+          }
 
-          realtyDetails[key] = value ? value : null;
+          realtyDetails[key] = value;
         });
-        realtyDetails['descricao'] = $('#content > ' +
-                                      'div.sc-bwzfXH.h3us20-0.cBfPri > ' +
-                                      'div.sc-1ys3xot-0.h3us20-0.lnOyyM > ' +
-                                      'div.h3us20-5.ccSbwB > ' +
-                                      'div > ' +
-                                      'div.sc-1sj3nln-0.eSLnCp > ' +
-                                      'div > p > span').text();
+        realtyDetails['descricao'] = $('div > ' +
+                                      'div.sc-1sj3nln-0.eSLnCp > div > p > span').text();
       }
-      // console.log('realtyDetails => ', realtyDetails);
       resolve(realtyDetails)
+    })
+  })
+}
+
+const getAdvertiserDetails = async (realtyDetails) => {
+  // the data relative to the advertiser of the realty is loaded through an API, so I go there
+  // and get it myself. Each publi advertiser details is gotten through the API url plus the publi code.
+  const advertiserApiUrl = 'https://prada-api.olx.com.br/store/v1/accounts/ads/' + realtyDetails.codPublicacao;
+  return new Promise ((resolve, reject) => {
+    request({
+      url: advertiserApiUrl,
+      encoding: null
+    }, (err, res, body) => {
+      if (!err) {
+        const advertiserDetails = JSON.parse(body.toString());
+        resolve(advertiserDetails)
+      }
     })
   })
 }
@@ -106,7 +114,7 @@ const traversePages = async (numOfPages) => {
   const urlFragment1 = 'https://go.olx.com.br/grande-goiania-e-anapolis/imoveis/aluguel/apartamentos?o=';
   const urlFragment2 = '\&pe=1300&sf=1';
   const realtys = [];
-  for (let i = 1; i <= 1; i++) {
+  for (let i = 1; i <= numOfPages; i++) {
     const url = urlFragment1 + i + urlFragment2;
     console.log('traversePages url =>> ', url)
     const pageContents = await seePage(url);
