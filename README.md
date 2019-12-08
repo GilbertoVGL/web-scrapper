@@ -32,6 +32,17 @@ To Run:
   - Go to client folder and run npm run dev;
 
   - Go to server folder (if you have nodemon installed) run nodemon -w ./ ;
+
+
+TO DO's :
+  - [ ] Make realtyPrices.js service a cron job;
+  - [ ] Determine the periodicity the reatyPrices cron job will run;
+  - [ ] Work on the user interface;
+  - [ ] Make analytics graphics from the realty data took;
+  - [ ] Make reports for the user;
+  - [ ] Make a way to the user specify the parameters of the realty he wants to look for;
+  - [ ] Currently only taking realtys in Gyn with a higher rent price of R$ 1.300, should I make it a user choice? If so, have to study OLX url patterns to insert it on my search;
+  - [ ] Do it, but do it good.
   
 
 

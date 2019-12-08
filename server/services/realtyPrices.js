@@ -22,8 +22,10 @@ async function searchRealtyPrices(params) {
   console.log('uniqueUrls.length =>> ', uniqueUrls.length);
 
   const data = await getContent(uniqueUrls);
-  // saveRealtys(data);
-  console.log('data.length =>> ', data.length);
+
+  // the function below save the results to MongoDB
+  saveRealtys(data);
+  
   return data;
 }
 
