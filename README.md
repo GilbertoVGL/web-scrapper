@@ -24,3 +24,14 @@ To Run:
   
   go to the server folder and run npm install;
 
+  you'll need docker and docker-compose installed in order to run the project.
+  after you get it installed: 
+  
+  - Go to the project root folder and run docker-compose up;
+  
+  - Go to client folder and run npm run dev;
+
+  - Go to server folder (if you have nodemon installed) run nodemon -w ./ ;
+  
+
+
