@@ -1,0 +1,26 @@
+<div>
+    <div class="boards">
+      <div>
+        <h3>Type of search</h3>
+        <input type="radio" id="realtyPrice" value="realtyPrice" [(ngModel)]="typeOfSearch">
+        <label for="realtyPrice">Realty Price</label>
+        <br>
+        <button (click)="getRubbish()">search</button>
+        <br>
+      </div>
+      <br>
+      <div *ngIf="gotImageRubbish">
+        <div *ngFor="let image of scraps">
+          <img [src]="image">
+        </div>
+      </div>
+      <div *ngIf="gotPriceRubbish">
+        <div *ngFor="let price of scraps">
+          <a [href]="price">
+            <p> link</p>
+          </a>
+        </div>
+      </div>
+    </div>
+</div>
+  
